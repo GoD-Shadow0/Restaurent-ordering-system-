@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Restaurant Order System</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .order-summary {
+            margin-top: 20px;
+        }
+
+        .receipt {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Our Restaurant</h1>
+        <form id="order-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" required>
+
+            <label for="table">Table Number:</label>
+            <input type="number" id="table" required>
+
+            <h2>Menu:</h2>
+            <div id="menu"></div>
+
+            <button type="submit">Finalize Order</button>
+        </form>
+
+        <div class="order-summary" id="order-summary"></div>
+
+        <div class="receipt" id="receipt"></div>
+    </div>
+
+    <script>
+        const menu = {
+            "Pizza": 100,
+            "Burger": 80,
+            "Noodles": 80,
+            "Fries": 60,
+            "Sandwich": 60,
+            "Coke": 50
+        };
+
+        const orderForm = document.getElementById('order-form');
+        const menuDiv = document.getElementById('menu');
+        const orderSummaryDiv = document.getElementById('order-summary');
+        const receiptDiv = document.getElementById('receipt');
+
+        function printMenu() {
+            let menuHTML = '';
+            for (const item in menu) {
+                menuHTML += `<label for="${item}">${item}:</label>
+                             <input type="number" id="${item}" min="0">`;
+            }
+            menuDiv.innerHTML = menuHTML;
+        }
+
+        function takeOrder(event) {
+            event.preventDefault();
+
+            const order = {};
+            for (const item in menu) {
+                const quantity = parseInt(document.getElementById(item).value);
+                if (quantity > 0) {
+                    order[item] = quantity;
+                }
+            }
+
+            const total = calculateTotal(order);
+            printOrderSummary(order, total);
+        }
+
+        function calculateTotal(order) {
+            let total = 0;
+            for (const item in order) {
+                total += menu[item] * order[item];
+            }
+            return total;
+        }
+
+        function printOrderSummary(order, total) {
+            let orderSummaryHTML = '<h2>Your Order Summary:</h2>';
+            for (const item in order) {
+                const quantity = order[item];
+                const price = menu[item];
+                const subtotal = price * quantity;
+                orderSummaryHTML += `<p>${item}: ${quantity} x ₹${price.toFixed(2)} = ₹${subtotal.toFixed(2)}</p>`;
+            }
+            orderSummaryHTML += `<p>Total: ₹${total.toFixed(2)}</p>`;
+            orderSummaryDiv.innerHTML = orderSummaryHTML;
+
+            const finalize = confirm("Would you like to finalize your order?");
+            if (finalize) {
+                printReceipt(order, total);
+            } else {
+                orderSummaryDiv.innerHTML = '';
+            }
+        }
+
+        function printReceipt(order, total) {
+            let receiptHTML = '<h2>Receipt:</h2>';
+            receiptHTML += `<p>Table Number: ${document.getElementById('table').value}</p>`;
+            for (const item in order) {
+                const quantity = order[item];
+                const price = menu[item];
+                const subtotal = price * quantity;
+                receiptHTML += `<p>${item}: ${quantity} x ₹${price.toFixed(2)} = ₹${subtotal.toFixed(2)}</p>`;
+            }
+            receiptHTML += `<p>Total: ₹${total.toFixed(2)}</p>`;
+            receiptHTML += '<p>Thank you for dining with us!</p>';
+            receiptDiv.innerHTML = receiptHTML;
+        }
+
+        printMenu();
+        orderForm.addEventListener('submit', takeOrder);
+    </script>
+</body>
+</html>
